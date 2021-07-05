@@ -1,3 +1,3 @@
 #!/bin/sh
 
-curl -vvv --form file='@test.txt' localhost:8888/upload
+curl -vvv --form file='@test2.gpx' localhost:8888/upload

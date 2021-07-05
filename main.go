@@ -8,6 +8,7 @@ import (
 
   log "github.com/sirupsen/logrus"
   "github.com/gorilla/mux"
+  "github.com/twpayne/go-gpx"
 )
 
 
@@ -25,6 +26,8 @@ func main() {
 
 func uploadGPXFile(w http.ResponseWriter, r *http.Request) {
 
+  w.Header().Set("Access-Control-Allow-Origin", "http://localhost:8081")
+
   // https://stackoverflow.com/a/28074084
   var maxBytes int64 = 5 * 1024  * 1024
   r.Body = http.MaxBytesReader(w, r.Body, maxBytes)
@@ -33,6 +36,9 @@ func uploadGPXFile(w http.ResponseWriter, r *http.Request) {
   r.ParseMultipartForm(maxBytes)
 
   var buf bytes.Buffer
+
+  log.Info(r)
+
 
   file, header, err := r.FormFile("file")
   if err != nil {
@@ -46,6 +52,12 @@ func uploadGPXFile(w http.ResponseWriter, r *http.Request) {
   log.WithFields(log.Fields{"FileName": name[0], "FileSize": header.Size}).Info("file received")
   io.Copy(&buf, file)
 
-  contents := buf.String()
-  log.Info(contents)
+  t, err := gpx.Read(&buf)
+  if err != nil {
+    log.Fatal(err)
+  }
+
+
+  log.Info(t)
+  log.Info(t.Wpt)
 }
